@@ -1,0 +1,24 @@
+instance_name = "default"
+hostname = "android"
+ipv4 = ""
+dhcp = false
+
+listeners = [
+    "tcp://0.0.0.0:11010",
+    "udp://0.0.0.0:11010",
+    "ws://0.0.0.0:11011/",
+    "wss://0.0.0.0:11012/",
+]
+
+rpc_portal = "127.0.0.1:15888"
+
+[network_identity]
+network_name = "easytier"
+network_secret = "easytier"
+
+[[peer]]
+uri = "tcp://public.easytier.top:11010"
+
+[flags]
+multi_thread = true
+no_tun = true
