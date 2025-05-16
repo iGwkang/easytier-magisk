@@ -1,6 +1,7 @@
 id=easytier-magisk
 name=EasyTier for Magisk
 version=v2.2.4
-versionCode=20250509
+versionCode=20250516
 author=Gwkang
-description=EasyTier for Magisk
+description=EasyTier for Magisk, 配置文件：/data/adb/easytier-magisk/config.yaml, 修改后点击操作按钮生效
+updateJson=https://github.com/iGwkang/easytier-magisk/blob/main/update.json

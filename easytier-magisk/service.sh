@@ -21,4 +21,8 @@ wait_until_login() {
 
 wait_until_login
 
+# 设置路由，让main表生效(easytier添加的规则都在main表里，默认main表不生效)
+ip rule add lookup main
+ip rule add lookup default
+
 setsid $MODDIR/run.sh &
