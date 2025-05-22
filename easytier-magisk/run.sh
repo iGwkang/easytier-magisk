@@ -30,5 +30,5 @@ check_disable() {
 check_disable &
 check_disable_pid=$!
 
-$MODDIR/easytier/$ARCH/easytier-core -c /data/adb/easytier-magisk/config.yaml > $MODDIR/log/start.log 2>&1
+$MODDIR/easytier/$ARCH/easytier-core -c /data/adb/easytier-magisk/config.conf > $MODDIR/log/start.log 2>&1
 kill $check_disable_pid
