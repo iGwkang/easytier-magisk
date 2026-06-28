@@ -1,0 +1,65 @@
+name: Sync EasyTier Release
+
+on:
+  schedule:
+    # GitHub cron uses UTC. 16:00 UTC is 00:00 in Asia/Shanghai.
+    - cron: "0 16 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set release date
+        run: echo "RELEASE_DATE=$(TZ=Asia/Shanghai date +%Y%m%d)" >> "$GITHUB_ENV"
+
+      - name: Prepare latest EasyTier release
+        id: sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/sync_easytier_release.py
+
+      - name: Verify generated files
+        if: steps.sync.outputs.updated == 'true'
+        run: python -m unittest tests.test_sync_easytier_release -v
+
+      - name: Check release does not exist
+        if: steps.sync.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.sync.outputs.release_tag }}
+        run: |
+          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "Release ${RELEASE_TAG} already exists."
+            exit 1
+          fi
+
+      - name: Commit synchronized release files
+        if: steps.sync.outputs.updated == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.sync.outputs.release_tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md update.json easytier-magisk/module.prop easytier-magisk/easytier
+          git commit -m "Update EasyTier ${RELEASE_TAG}"
+          git tag "${RELEASE_TAG}"
+          git push origin HEAD
+          git push origin "${RELEASE_TAG}"
+
+      - name: Publish GitHub release
+        if: steps.sync.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.sync.outputs.release_tag }}
+          ZIP_PATH: ${{ steps.sync.outputs.zip_path }}
+        run: gh release create "${RELEASE_TAG}" "${ZIP_PATH}" --title "${RELEASE_TAG}" --notes-file CHANGELOG.md
