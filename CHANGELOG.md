@@ -1,85 +1,51 @@
-## 📝 更新日志（v2.3.1 → v2.3.2）
+# EasyTier v2.6.4 Release Notes
 
-### 🚀 新功能 / Feature Enhancements
+## 📝 更新日志（v2.6.3 → v2.6.4）
 
-* 支持 QUIC 代理 [@KKRainbow](https://github.com/KKRainbow)
-* 支持子网代理映射功能 [@KKRainbow](https://github.com/KKRainbow)
-*  `easytier-core` 支持多配置文件加载 [@xzzpig](https://github.com/xzzpig)
-* 添加转发带宽速率限制功能（bps limiter）[@KKRainbow](https://github.com/KKRainbow)
-* Web 支持 IPv4/IPv6 双栈访问 [@BlackLuny](https://github.com/BlackLuny)
-* 支持通过 命令行设置机器 UID [@KKRainbow](https://github.com/KKRainbow)
-* 添加 RPC 门户白名单，默认仅允许本地访问 [@xzzpig](https://github.com/xzzpig)
-* GUI / Web 支持 Toml 配置的导入、导出和编辑 [@xzzpig](https://github.com/xzzpig)
+### 🚀 新功能
 
+* **Windows UDP 广播中继** — 开启后，虚拟网络内的其他设备可以接收到本机发出的 UDP 广播包，让依赖局域网广播的应用（如局域网游戏发现、DLNA 投屏）在虚拟网络中正常工作。默认关闭，通过 `--enable-udp-broadcast-relay`、环境变量或 Web 界面开关启用。仅 Windows，需管理员权限。[@KKRainbow](https://github.com/KKRainbow) [#2222](https://github.com/EasyTier/EasyTier/pull/2222)
 
-### 🐞 问题修复 / Bug Fixes
+* **鸿蒙端配置持久化与分享** — 鸿蒙端配置现在会保存到本地存储，重启后不会丢失。支持配置的分享链接（一条链接即可把组网配置发给其他人导入）。路由聚合逻辑优化，减少冗余路由条目。[@FrankHan052176](https://github.com/FrankHan052176) [#2227](https://github.com/EasyTier/EasyTier/pull/2227)
 
-* 修复 roaming 后 WireGuard peer 表丢失的问题 [@imkiva](https://github.com/imkiva)
-* 修复 OSPF 路由条目残留的问题 [@KKRainbow](https://github.com/KKRainbow)
-* 修复内置 STUN 服务未使用 XOR-MAPPED 地址的问题 [@KKRainbow](https://github.com/KKRainbow)
-* 移除 macOS 上 utun 设备的默认路由设置 [@KKRainbow](https://github.com/KKRainbow)
-* 添加对 RPC 数据包合法性的检查（Fix #963）[@BlackLuny](https://github.com/BlackLuny)
-* 更新 `default_port` 与 SNI 逻辑，提升反向代理可达性 [@thezzisu](https://github.com/thezzisu)
-* 支持 `--proxy-forward-by-system` 与 `--enable-exit-node` 同时使用 [@imkiva](https://github.com/imkiva)
-* KCP 支持自动重连机制 [@KKRainbow](https://github.com/KKRainbow)
-* 批量压缩代替流式压缩，降低内存使用 [@KKRainbow](https://github.com/KKRainbow)
-* 为 `PeerConn` 添加 `is_hole_punched` 属性，取代原打洞状态表 [@liusen373](https://github.com/liusen373)
+### 🐞 问题修复
 
-### 📄 其他改动 / Other Changes
+* **修复 QUIC Proxy 概率性建连失败问题** — QUIC Proxy 在丢包时有概率建连失败，改为使用 QUIC open_bi 来处理建连。[@21paradox](https://github.com/21paradox) [#2216](https://github.com/EasyTier/EasyTier/pull/2216)
 
-* 更新 core.yml，使用 UPX 4.2.4 进行打包优化 [@KKRainbow](https://github.com/KKRainbow)
+* **修复设备标识丢失与 Web 管理页崩溃** — 设备标识（Machine ID）现在会持久化保存，升级或重启后标识不变，不会导致需要重新认证。同时修复了 Web 管理界面在收到异常数据时崩溃退出的问题。[@KKRainbow](https://github.com/KKRainbow) [#2216](https://github.com/EasyTier/EasyTier/pull/2215)
 
-## 👥 新贡献者 / New Contributors
+* **修复长时间运行内存持续增长** — 修复了一个资源未正常释放的问题，EasyTier 长时间运行不会内存越占越多。[@KKRainbow](https://github.com/KKRainbow) [#2211](https://github.com/EasyTier/EasyTier/pull/2211)
 
-* 🎉 @thezzisu 首次贡献于 [#947](https://github.com/EasyTier/EasyTier/pull/947)
-* 🎉 @imkiva 首次贡献于 [#954](https://github.com/EasyTier/EasyTier/pull/954)
-* 🎉 @BlackLuny 首次贡献于 [#953](https://github.com/EasyTier/EasyTier/pull/953)
-* 🎉 @tianxiayu007 首次贡献于 [#1004](https://github.com/EasyTier/EasyTier/pull/1004)
-* 🎉 @liusen373 首次贡献于 [#1001](https://github.com/EasyTier/EasyTier/pull/1001)
+* **ACL 规则配置更宽容** — 配置 ACL 规则时不需要填全部字段，没填的字段自动用默认值，不会因漏写导致配置加载失败。[@fanyang89](https://github.com/fanyang89) [#2206](https://github.com/EasyTier/EasyTier/pull/2206)
 
-🔗 **完整更新记录**: [点击查看完整变更](https://github.com/EasyTier/EasyTier/compare/v2.3.1...v2.3.2)
+* **重连失败时错误提示更清晰** — 手动重连出错时，错误信息会明确标明是 DNS 解析、网络连接还是握手环节超时，方便排查。[@fanyang89](https://github.com/fanyang89) [#2062](https://github.com/EasyTier/EasyTier/pull/2062)
+
+* **CLI 帮助信息补全** — 之前部分子命令和参数没有 `--help` 说明，现已补齐。[@fanyang89](https://github.com/fanyang89) [#2213](https://github.com/EasyTier/EasyTier/pull/2213)
+
+🔗 **完整变更记录**: [GitHub Compare](https://github.com/EasyTier/EasyTier/compare/v2.6.3...HEAD)
 
 ---
 
-## 📝 Release Notes (v2.3.1 → v2.3.2)
+## 📝 Release Notes (v2.6.3 → v2.6.4)
 
-### 🚀 Feature Enhancements
+### 🚀 New Features
 
-* Added support for QUIC proxy [@KKRainbow](https://github.com/KKRainbow)
-* Added subnet proxy mapping support [@KKRainbow](https://github.com/KKRainbow)
-* `easytier-core` now supports loading multiple configuration files [@xzzpig](https://github.com/xzzpig)
-* Added bandwidth rate limiting for forwarding traffic (bps limiter) [@KKRainbow](https://github.com/KKRainbow)
-* Web interface now supports IPv4/IPv6 dual-stack access [@BlackLuny](https://github.com/BlackLuny)
-* Allow setting machine UID via command line [@KKRainbow](https://github.com/KKRainbow)
-* Added RPC portal whitelist, local access only by default [@xzzpig](https://github.com/xzzpig)
-* GUI/Web now supports importing, exporting, and editing Toml configurations [@xzzpig](https://github.com/xzzpig)
+* **Windows UDP broadcast relay** — When enabled, UDP broadcast packets from your PC are forwarded to other devices in the virtual network, allowing LAN-dependent apps like game discovery and DLNA to work across the VPN. Disabled by default; enable via `--enable-udp-broadcast-relay`, environment variable, or Web UI toggle. Windows only, requires admin privileges.[@KKRainbow](https://github.com/KKRainbow) [#2222](https://github.com/EasyTier/EasyTier/pull/2222)
+
+* **HarmonyOS config persistence and sharing** — Configs on HarmonyOS are now saved locally and survive restarts. Share your network config with others via a single link. Route aggregation has been optimized to reduce redundant entries.[@FrankHan052176](https://github.com/FrankHan052176) [#2227](https://github.com/EasyTier/EasyTier/pull/2227)
 
 ### 🐞 Bug Fixes
 
-* Fixed issue where WireGuard peer table was lost after client roaming [@imkiva](https://github.com/imkiva)
-* Fixed OSPF route residue by adjusting route entry management [@KKRainbow](https://github.com/KKRainbow)
-* Fixed internal STUN server to use XOR-MAPPED address [@KKRainbow](https://github.com/KKRainbow)
-* Removed default route on macOS `utun` devices [@KKRainbow](https://github.com/KKRainbow)
-* Added sanity check for incoming RPC packets (Fix #963) [@BlackLuny](https://github.com/BlackLuny)
-* Improved reverse proxy reachability by updating `default_port` and SNI logic [@thezzisu](https://github.com/thezzisu)
-* Enabled `--proxy-forward-by-system` to work with `--enable-exit-node` [@imkiva](https://github.com/imkiva)
-* Added KCP reconnect mechanism [@KKRainbow](https://github.com/KKRainbow)
-* Replaced streaming compression with bulk compression to reduce memory usage [@KKRainbow](https://github.com/KKRainbow)
-* Introduced `is_hole_punched` property to `PeerConn`, replacing global punch state table [@liusen373](https://github.com/liusen373)
+* **Fixed the probabilistic connection establishment issue in QUIC Proxy** — QUIC Proxy had a chance of connection failure when packets were lost. Instead, QUIC open_bi is used to handle connection establishment.[@21paradox](https://github.com/21paradox) [#2216](https://github.com/EasyTier/EasyTier/pull/2216)
 
-### 📄 Other Changes
+* **Fixed device identity loss and web dashboard crash** — Machine ID is now persisted across restarts and upgrades, preventing re-authentication after updates. Also fixed the web dashboard crashing on malformed packets.[@KKRainbow](https://github.com/KKRainbow) [#2215](https://github.com/EasyTier/EasyTier/pull/2215)
 
-* Updated `core.yml` to use UPX 4.2.4 for binary packing optimization [@KKRainbow](https://github.com/KKRainbow)
+* **Fixed memory creep during long runs** — Fixed a resource leak that caused memory usage to grow over time when running EasyTier for extended periods.[@KKRainbow](https://github.com/KKRainbow) [#2211](https://github.com/EasyTier/EasyTier/pull/2211)
 
-## 👥 New Contributors
+* **More forgiving ACL config** — ACL rules in config files no longer require every field to be filled in. Missing fields now use sensible defaults instead of causing load errors.[@fanyang89](https://github.com/fanyang89) [#2206](https://github.com/EasyTier/EasyTier/pull/2206)
 
-* 🎉 @thezzisu made their first contribution in [#947](https://github.com/EasyTier/EasyTier/pull/947)
-* 🎉 @imkiva made their first contribution in [#954](https://github.com/EasyTier/EasyTier/pull/954)
-* 🎉 @BlackLuny made their first contribution in [#953](https://github.com/EasyTier/EasyTier/pull/953)
-* 🎉 @tianxiayu007 made their first contribution in [#1004](https://github.com/EasyTier/EasyTier/pull/1004)
-* 🎉 @liusen373 made their first contribution in [#1001](https://github.com/EasyTier/EasyTier/pull/1001)
+* **Clearer reconnect error messages** — When manual reconnection fails, the error now tells you exactly what went wrong — DNS, connection, or handshake — instead of a generic timeout.[@fanyang89](https://github.com/fanyang89) [#2062](https://github.com/EasyTier/EasyTier/pull/2062)
 
-🔗 **Full Changelog**: [View Full Changes](https://github.com/EasyTier/EasyTier/compare/v2.3.1...v2.3.2)
+* **Missing CLI help text added** — Previously undocumented CLI subcommands and flags now have proper `--help` descriptions.[@fanyang89](https://github.com/fanyang89) [#2213](https://github.com/EasyTier/EasyTier/pull/2213)
 
-
----
+🔗 **Full Changelog**: [GitHub Compare](https://github.com/EasyTier/EasyTier/compare/v2.6.3...HEAD)
