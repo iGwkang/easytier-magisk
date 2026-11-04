@@ -1,0 +1,9 @@
+* text=auto
+
+*.sh text eol=lf
+*.sample text eol=lf
+*.prop text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.py text eol=lf
+*.md text eol=lf

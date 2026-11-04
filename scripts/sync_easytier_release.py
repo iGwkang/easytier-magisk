@@ -25,8 +25,7 @@ UPDATE_JSON_PATH = Path("update.json")
 MODULE_PROP_PATH = MODULE_DIR / "module.prop"
 EASYTIER_DIR = MODULE_DIR / "easytier"
 ARCHIVE_PREFIX = "easytier-magisk"
-ARCHIVE_EXCLUDES = {".git", ".github", ".agents", ".codex", "tests", "scripts"}
-EASYTIER_BINARIES = ("easytier-cli", "easytier-core", "easytier-web", "easytier-web-embed")
+EASYTIER_BINARIES = ("easytier-cli", "easytier-core", "easytier-web-embed")
 
 
 class ReleaseSyncError(RuntimeError):
@@ -91,6 +90,7 @@ def find_required_assets(assets: list[dict[str, Any]], tag_name: str) -> dict[st
     patterns = {
         "arm": re.compile(rf"^easytier-linux-armv7-{re.escape(version)}\.zip$"),
         "arm64": re.compile(rf"^easytier-linux-aarch64-{re.escape(version)}\.zip$"),
+        "x64": re.compile(rf"^easytier-linux-x86_64-{re.escape(version)}\.zip$"),
     }
     found: dict[str, str] = {}
     for asset in assets:

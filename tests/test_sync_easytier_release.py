@@ -1,9 +1,13 @@
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
 from scripts import sync_easytier_release as sync
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+MODULE_DIR = REPO_ROOT / "easytier-magisk"
 
 
 class SyncEasyTierReleaseTest(unittest.TestCase):
@@ -81,24 +85,78 @@ class SyncEasyTierReleaseTest(unittest.TestCase):
                 "author=Gwkang\n",
             )
 
-    def test_find_required_assets_matches_linux_arm_archives(self):
+    def test_find_required_assets_matches_linux_archives(self):
         assets = [
             {"name": "easytier-linux-arm-v2.6.4.zip", "browser_download_url": "wrong-arm"},
             {"name": "easytier-linux-armv7-v2.6.4.zip", "browser_download_url": "arm-url"},
             {"name": "easytier-linux-aarch64-v2.6.4.zip", "browser_download_url": "arm64-url"},
+            {"name": "easytier-linux-x86_64-v2.6.4.zip", "browser_download_url": "x64-url"},
         ]
 
         result = sync.find_required_assets(assets, "v2.6.4")
 
-        self.assertEqual(result, {"arm": "arm-url", "arm64": "arm64-url"})
+        self.assertEqual(result, {"arm": "arm-url", "arm64": "arm64-url", "x64": "x64-url"})
 
     def test_find_required_assets_reports_missing_architecture(self):
         assets = [
-            {"name": "easytier-android-aarch64-v2.6.4.zip", "browser_download_url": "arm64-url"},
+            {"name": "easytier-linux-aarch64-v2.6.4.zip", "browser_download_url": "arm64-url"},
+            {"name": "easytier-linux-x86_64-v2.6.4.zip", "browser_download_url": "x64-url"},
         ]
 
         with self.assertRaisesRegex(sync.ReleaseSyncError, "arm"):
             sync.find_required_assets(assets, "v2.6.4")
+
+    def test_find_required_assets_reports_missing_x64(self):
+        assets = [
+            {"name": "easytier-linux-armv7-v2.6.4.zip", "browser_download_url": "arm-url"},
+            {"name": "easytier-linux-aarch64-v2.6.4.zip", "browser_download_url": "arm64-url"},
+        ]
+
+        with self.assertRaisesRegex(sync.ReleaseSyncError, "x64"):
+            sync.find_required_assets(assets, "v2.6.4")
+
+
+class ModuleLayoutTest(unittest.TestCase):
+    def test_shell_scripts_parse(self):
+        scripts = [
+            "common.sh",
+            "run.sh",
+            "service.sh",
+            "action.sh",
+            "hotspot_nat.sh",
+            "customize.sh",
+            "uninstall.sh",
+        ]
+        for script in scripts:
+            with self.subTest(script=script):
+                subprocess.run(
+                    ["sh", "-n", str(MODULE_DIR / script)],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+
+    def test_default_config_has_official_sections(self):
+        try:
+            import tomllib
+        except ModuleNotFoundError:  # pragma: no cover - Python < 3.11
+            self.skipTest("tomllib requires Python 3.11+")
+
+        config = tomllib.loads((MODULE_DIR / "config" / "config.toml").read_text(encoding="utf-8"))
+
+        self.assertEqual(config["instance_name"], "default")
+        self.assertIn("listeners", config)
+        self.assertIn("network_identity", config)
+        self.assertIn("peer", config)
+        self.assertIn("flags", config)
+
+    def test_every_supported_arch_ships_all_binaries(self):
+        for arch in ("arm", "arm64", "x64"):
+            for binary in sync.EASYTIER_BINARIES:
+                with self.subTest(arch=arch, binary=binary):
+                    path = MODULE_DIR / "easytier" / arch / binary
+                    self.assertTrue(path.is_file(), f"missing {path}")
+                    self.assertGreater(path.stat().st_size, 0)
 
 
 if __name__ == "__main__":

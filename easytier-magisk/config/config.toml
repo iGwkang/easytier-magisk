@@ -1,8 +1,29 @@
+# EasyTier for Magisk 默认配置（对应 EasyTier v2.6.4 配置结构）
+# 修改后点击 Magisk 模块的“操作”按钮重启生效。
+# 完整官方参数也可写入 /data/adb/easytier-magisk/command_args。
+
+# ── 基础 ────────────────────────────────────────────────────────────────
 instance_name = "default"
-hostname = "android"
+# 留空时模块自动使用“品牌-型号”作为主机名；取消注释可固定主机名。
+# hostname = "android"
+# 在指定 network namespace 中运行（需要内核与 root 支持）。
+# netns = "/var/run/netns/example"
+
+# 虚拟 IP。留空且 dhcp = false 时本机只转发流量、不创建 TUN。
 ipv4 = ""
+# 可与 ipv4 同时使用，实现双栈。
+# ipv6 = "fd00::1/64"
+# 把自己的公网 IPv6 网段共享给其他节点（Linux）。
+# ipv6_public_addr_provider = false
+# 自动从共享节点获取公网 IPv6。
+# ipv6_public_addr_auto = false
+# 手动指定要共享的 IPv6 网段。
+# ipv6_public_addr_prefix = "2001:db8:100::/64"
+
+# 由 EasyTier 自动分配虚拟 IP。
 dhcp = false
 
+# 监听地址。支持 tcp / udp / ws / wss / wg / quic / faketcp。
 listeners = [
     "tcp://0.0.0.0:11010",
     "udp://0.0.0.0:11010",
@@ -10,15 +31,171 @@ listeners = [
     "wss://0.0.0.0:11012/",
 ]
 
-rpc_portal = "127.0.0.1:15888"
+# 公网地址与监听端口不一致时，手动声明外部可访问地址。
+# mapped_listeners = ["tcp://1.2.3.4:11010"]
 
+# 默认出口节点（按顺序决定优先级）。本机流量将转发到这些虚拟 IP。
+# exit_nodes = ["10.144.144.1"]
+
+# 手动指定路由表项；配置后会关闭对端子网路由的自动下发。
+# routes = ["192.168.0.0/16"]
+
+# 内置 SOCKS5 服务，允许 SOCKS5 客户端访问虚拟网络。
+# socks5_proxy = "socks5://0.0.0.0:1080"
+
+# 只允许指定 TCP/UDP 端口进入本机（单端口或范围）。
+# tcp_whitelist = ["80", "8000-9000"]
+# udp_whitelist = ["53", "5000-6000"]
+
+# 覆盖默认 STUN 服务器；空数组表示不使用 STUN。
+# stun_servers = ["stun.example.com:3478"]
+# stun_servers_v6 = ["[2001:db8::1]:3478"]
+
+# 安全模式：为节点生成稳定 X25519 身份。
+# [secure_mode]
+# enabled = true
+# local_private_key = "base64-private-key"
+# local_public_key = "base64-public-key"
+
+# 持久化临时凭证（管理节点使用）。
+# credential_file = "/data/adb/easytier-magisk/credential.json"
+
+# 配置来源标记（user / webhook），一般无需修改。
+# [source]
+# source = "user"
+
+# RPC 管理端口不在本文件中配置，请在 module.conf 中设置 RPC_PORTAL。
+
+# ── 网络身份 ────────────────────────────────────────────────────────────
 [network_identity]
 network_name = "easytier"
 network_secret = "easytier"
 
+# ── 初始节点 ────────────────────────────────────────────────────────────
 [[peer]]
 uri = "tcp://public.easytier.top:11010"
+# 安全模式下可固定对端公钥。
+# peer_public_key = "base64-public-key"
 
+# ── 子网代理 ────────────────────────────────────────────────────────────
+# 把本机可达的局域网导出给其他节点；可同时映射为另一个网段。
+# [[proxy_network]]
+# cidr = "192.168.1.0/24"
+# mapped_cidr = "10.10.10.0/24"
+# allow = ["tcp", "udp", "icmp"]
+
+# ── WireGuard 门户 ──────────────────────────────────────────────────────
+# 允许普通 WireGuard 客户端接入虚拟网络。
+# [vpn_portal_config]
+# client_cidr = "10.14.14.0/24"
+# wireguard_listen = "0.0.0.0:11010"
+
+# ── 端口转发 ────────────────────────────────────────────────────────────
+# 把本机端口转发到虚拟网络内的目标地址。
+# [[port_forward]]
+# bind_addr = "0.0.0.0:12345"
+# dst_addr = "10.126.126.1:23456"
+# proto = "tcp"
+
+# ── 日志（兼容字段；实际日志级别由 module.conf 控制）───────────────────
+# [file_logger]
+# level = "info"
+# dir = "/data/adb/easytier-magisk/log/core"
+# [console_logger]
+# level = "warn"
+
+# ── 高级开关 ────────────────────────────────────────────────────────────
 [flags]
-# multi_thread = true
+# 连接对端使用的默认协议：tcp / udp / ws / wss / wg / quic / faketcp。
+# default_protocol = "tcp"
+# 指定 TUN 名称，留空由系统决定。
+# dev_name = ""
+# 关闭加密（所有节点必须一致）。
+# enable_encryption = false
+# enable_ipv6 = true
+# TUN MTU。
+# mtu = 1380
+# 延迟优先（否则按最短路径）。
+# latency_first = false
+# 允许本机作为出口节点。
+# enable_exit_node = false
+# 不创建 TUN，仅做转发。
 # no_tun = false
+# 使用 smoltcp 协议栈处理子网代理/KCP 代理。
+# use_smoltcp = false
+# 只转发白名单内的网络（* 表示全部）。
+# relay_network_whitelist = "*"
+# 禁用自动 P2P。
+# disable_p2p = false
+# 只与已建立 P2P 连接的节点通信。
+# p2p_only = false
+# 仅在真正有流量时才尝试 P2P。
+# lazy_p2p = false
+# 要求其他节点主动与本机建立 P2P。
+# need_p2p = false
+# 转发所有 Peer RPC，帮助白名单外节点打洞。
+# relay_all_peer_rpc = false
+# 禁用 UDP/TCP/对称 NAT 打洞。
+# disable_udp_hole_punching = false
+# disable_tcp_hole_punching = false
+# disable_sym_hole_punching = false
+# 禁用 UPnP/NAT-PMP 端口映射。
+# disable_upnp = false
+# 多线程运行时。
+# multi_thread = true
+# multi_thread_count = 4
+# 数据压缩：1 = none，2 = zstd。
+# data_compress_algo = 2
+# 绑定物理网卡，避免子网冲突导致回环。
+# bind_device = true
+# TCP 流经 KCP/QUIC 代理，改善丢包网络体验。
+# enable_kcp_proxy = false
+# enable_quic_proxy = false
+# disable_kcp_input = false
+# disable_quic_input = false
+# 禁止转发 KCP/QUIC 数据，节省带宽。
+# disable_relay_kcp = false
+# disable_relay_quic = false
+# enable_relay_foreign_network_kcp = false
+# enable_relay_foreign_network_quic = false
+# 子网代理走系统内核转发。
+# proxy_forward_by_system = false
+# 启用 Magic DNS（<hostname>.et.net）。
+# accept_dns = false
+# tld_dns_zone = "et.net."
+# 私有模式：只接受可验证网络密钥的外部网络。
+# private_mode = false
+# 加密算法：xor / aes-gcm / aes-256-gcm / chacha20。
+# encryption_algorithm = "aes-gcm"
+# 带宽限制，单位 B/s。
+# foreign_relay_bps_limit = 0
+# instance_recv_bps_limit = 0
+# 不转发他人的数据。
+# disable_relay_data = false
+# Windows 专用：转发本机 UDP 广播到虚拟网络。
+# enable_udp_broadcast_relay = false
+
+# ── ACL 访问控制 ────────────────────────────────────────────────────────
+# 规则按 priority 从高到低匹配；chain_type: 1=入站 2=出站 3=转发。
+# action: 0=无操作 1=允许 2=拒绝；protocol: 1=TCP 2=UDP 3=ICMP 4=ICMPv6 5=Any。
+#
+# [acl.acl_v1.group]
+# members = ["admin"]
+#
+# [[acl.acl_v1.group.declares]]
+# group_name = "admin"
+# group_secret = "change-me"
+#
+# [[acl.acl_v1.chains]]
+# name = "inbound"
+# chain_type = 1
+# enabled = true
+# default_action = 2
+#
+# [[acl.acl_v1.chains.rules]]
+# name = "allow-admin"
+# priority = 1000
+# action = 1
+# protocol = 5
+# source_groups = ["admin"]
+# enabled = true

@@ -1,0 +1,24 @@
+# 将本文件重命名为 command_args 后生效；存在有效内容时模块忽略 config.toml。
+# 内容按 easytier-core 的官方参数解析：空格分隔，支持单/双引号和反斜杠转义，
+# 以 # 开头的整行会被忽略。例如：
+#   -c "/data/adb/easytier-magisk/a b.toml" --no-tun
+#
+# 未指定 --machine-id 时，模块会自动补一个保存在数据目录的稳定 ID。
+#
+# 不支持 --daemon（守护进程由模块负责），也不支持 --check-config、
+# --gen-autocomplete 等一次性参数；需要时请手动执行 easytier-core。
+#
+# 配置服务器模式（由 Web 管理端下发配置，machine-id 必须固定且唯一）：
+# --config-server udp://1.2.3.4:22020/admin --machine-id android-phone
+#
+# 只填用户名时自动使用官方服务器：
+# --config-server admin --machine-id android-phone
+#
+# 多配置文件模式：
+# -c /data/adb/easytier-magisk/a.toml -c /data/adb/easytier-magisk/b.toml
+#
+# 仅转发、不创建 TUN：
+# -c /data/adb/easytier-magisk/config.toml --no-tun
+#
+# 指定 TUN 名称（热点 NAT 会自动识别）：
+# -c /data/adb/easytier-magisk/config.toml --dev-name et0
